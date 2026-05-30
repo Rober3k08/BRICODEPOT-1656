@@ -1,1 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Control Postventa · Puertas y Ventanas</title>
+  <style>
+    :root{
+      --red:#e30613;
+      --dark:#1f1f1f;
+      --black:#000;
+      --bg:#f4f5f7;
+      --card:#fff;
+      --line:#e5e7eb;
+      --muted:#6b7280;
+      --green:#dcfce7;
+      --green-text:#166534;
+      --yellow:#fef3c7;
+      --yellow-text:#92400e;
+      --blue:#dbeafe;
+      --blue-text:#1d4ed8;
+      --danger:#fee2e2;
+      --danger-text:#991b1b;
+      --critical:#7f1d1d;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:#111827}
+    header{background:var(--red);color:white;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:sticky;top:0;z-index:5;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+    .brand{display:flex;align-items:center;gap:14px}
+    .brand-mark{background:#111;color:#fff;border:2px solid #fff;font-weight:900;letter-spacing:.5px;padding:8px 10px;border-radius:3px;font-size:15px;white-space:nowrap}
+    h1{margin:0;font-size:22px;line-height:1.1}
+    .subtitle{font-size:13px;opacity:.95;margin-top:3px}
+    .wrap{max-width:1500px;margin:0 auto;padding:18px}
+    .grid{display:grid;gap:14px}
+    .kpis{grid-template-columns:repeat(6,minmax(150px,1fr));margin-bottom:14px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 20px rgba(17,24,39,.06);padding:16px}
+    .kpi .label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+    .kpi .value{font-size:30px;font-weight:900;margin-top:7px;color:var(--red)}
+    .section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+    .section-title h2{margin:0;font-size:18px}
+    .actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    button,.btn{border:0;border-radius:12px;padding:10px 13px;font-weight:800;cursor:pointer;background:var(--dark);color:white;text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-size:13px}
+    button.primary{background:var(--red)}
+    button.light{background:#fff;color:#111827;border:1px solid var(--line)}
+    button.warn{background:#991b1b}
+    button:hover{filter:brightness(.96)}
+    .layout{display:grid;grid-template-columns:380px 1fr;gap:14px;align-items:start}
+    label{font-size:12px;font-weight:800;color:#374151;margin-bottom:5px;display:block}
+    input,select,textarea{width:100%;border:1px solid #d1d5db;border-radius:11px;padding:10px;background:white;font-size:14px;outline:none}
+    input:focus,select:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(227,6,19,.12)}
+    textarea{min-height:90px;resize:vertical}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .span2{grid-column:1/-1}
+    .filters{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:8px;margin-bottom:12px}
+    .table-wrap{width:100%;max-width:100%;overflow:auto;max-height:560px;border:1px solid var(--line);border-radius:16px;background:#fff}
+    table{width:100%;min-width:1180px;border-collapse:separate;border-spacing:0;background:white;border:0;border-radius:0;table-layout:auto}
+    th{background:var(--dark);color:white;font-size:12px;text-align:left;padding:11px;position:sticky;top:0;z-index:3;white-space:nowrap}
+    td{border-top:1px solid var(--line);padding:10px;font-size:13px;vertical-align:top;white-space:nowrap;background:#fff}
+    td:nth-child(3),td:nth-child(4){white-space:normal;min-width:170px}
+    td:nth-child(10){min-width:260px}
+    tr:hover td{background:#fafafa}
+    .pill{display:inline-flex;align-items:center;border-radius:999px;padding:5px 9px;font-weight:900;font-size:12px;white-space:nowrap}
+    .pill.verde{background:var(--green);color:var(--green-text)}
+    .pill.amarillo{background:var(--yellow);color:var(--yellow-text)}
+    .pill.rojo{background:var(--danger);color:var(--danger-text)}
+    .pill.critico{background:var(--critical);color:#fff}
+    .state{background:var(--blue);color:var(--blue-text)}
+    .closed{background:#e5e7eb;color:#374151}
+    .muted{color:var(--muted)}
+    .small{font-size:12px}
+    .row-actions{display:flex;gap:6px;flex-wrap:nowrap;align-items:center}
+    .row-actions button{padding:7px 9px;border-radius:9px;font-size:12px;white-space:nowrap}
+    .empty{padding:28px;text-align:center;color:var(--muted);background:#fff;border-radius:16px;border:1px dashed #cbd5e1}
+    dialog{border:0;border-radius:20px;box-shadow:0 20px 80px rgba(0,0,0,.25);max-width:900px;width:calc(100% - 24px);padding:0}
+    dialog::backdrop{background:rgba(0,0,0,.45)}
+    .modal-head{background:var(--red);color:white;padding:16px 18px;display:flex;justify-content:space-between;align-items:center}
+    .modal-head h3{margin:0}
+    .modal-body{padding:18px;background:#fff}
+    .history-item{border-left:4px solid var(--red);padding:10px 12px;background:#f9fafb;border-radius:12px;margin-bottom:10px}
+    .notice{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;border-radius:14px;padding:12px;margin-bottom:14px;font-weight:700}
+    .file-input{display:none}
+    @media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}.layout{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}.brand{align-items:flex-start}.brand-mark{font-size:12px}h1{font-size:18px}}
+    @media(max-width:680px){header{align-items:flex-start;flex-direction:column}.kpis{grid-template-columns:1fr 1fr}.filters{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.span2{grid-column:auto}.wrap{padding:10px}.card{border-radius:14px;padding:12px}table{min-width:1050px}}
+    @media print{header,.form-card,.filters,.actions,.row-actions,.notice{display:none!important}.wrap{padding:0}.layout{display:block}body{background:#fff}.card{box-shadow:none;border:0}.table-wrap{overflow:visible;max-height:none;border:0}th{position:static}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-mark">BRICO DEPÔT</div>
+      <div>
+        <h1>Control Postventa</h1>
+        <div class="subtitle">Puertas y ventanas · Gestión de incidencias</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="light" onclick="window.print()">Imprimir panel</button>
+      <button class="primary" onclick="exportCSV()">Exportar CSV</button>
+      <button class="light" onclick="exportJSON()">Backup JSON</button>
+      <button class="light" onclick="document.getElementById('importFile').click()">Importar JSON</button>
+      <input id="importFile" class="file-input" type="file" accept="application/json" onchange="importJSON(event)">
+    </div>
+  </header>
 
+  <main class="wrap">
+    <div class="notice">Los datos se guardan en este navegador. Para compartirlos, exporta CSV o JSON. El Excel incluido funciona como base maestra.</div>
+
+    <section class="grid kpis" id="kpis"></section>
+
+    <div class="layout">
+      <section class="card form-card">
+        <div class="section-title">
+          <h2 id="formTitle">Nueva incidencia</h2>
+          <button class="light" onclick="resetForm()">Limpiar</button>
+        </div>
+        <form id="incidentForm" onsubmit="saveIncident(event)">
+          <input type="hidden" id="editId">
+          <div class="form-grid">
+            <div><label>Fecha apertura</label><input id="fecha" type="date" required></div>
+            <div><label>Nº anticipo / pedido</label><input id="anticipo" placeholder="Ej. 123456"></div>
+            <div><label>Cliente</label><input id="cliente" placeholder="Nombre cliente"></div>
+            <div><label>Teléfono</label><input id="telefono" placeholder="Teléfono"></div>
+            <div><label>Vendedor</label><select id="vendedor"></select></div>
+            <div><label>Responsable</label><select id="responsable"></select></div>
+            <div><label>Familia</label><select id="familia"></select></div>
+            <div><label>Proveedor</label><select id="proveedor"></select></div>
+            <div class="span2"><label>Producto</label><input id="producto" placeholder="Ej. Ventana PVC 137x100"></div>
+            <div><label>EAN / referencia</label><input id="referencia" placeholder="EAN o ref."></div>
+            <div><label>Importe afectado</label><input id="importe" type="number" step="0.01" min="0" placeholder="0,00"></div>
+            <div class="span2"><label>Tipo incidencia</label><select id="tipo"></select></div>
+            <div><label>Estado</label><select id="estado"></select></div>
+            <div><label>Prioridad</label><select id="prioridad"></select></div>
+            <div><label>Fecha último contacto</label><input id="ultimo" type="date"></div>
+            <div><label>Fecha límite</label><input id="limite" type="date"></div>
+            <div><label>Cliente reclamando</label><select id="reclamando"><option>No</option><option>Sí</option></select></div>
+            <div><label>Solución solicitada</label><select id="solucion"></select></div>
+            <div class="span2"><label>Descripción</label><textarea id="descripcion" placeholder="Qué ocurre, qué se revisó, qué falta..."></textarea></div>
+            <div class="span2"><label>Próxima acción</label><input id="proxima" placeholder="Ej. Llamar proveedor / solicitar vídeo / informar cliente"></div>
+            <div class="span2"><label>Observaciones</label><textarea id="observaciones" placeholder="Notas internas"></textarea></div>
+            <div class="span2"><label>Enlace fotos/documentos</label><input id="enlace" placeholder="Pega aquí enlace a fotos, Drive, correo, etc."></div>
+          </div>
+          <div class="actions" style="margin-top:12px">
+            <button class="primary" type="submit">Guardar incidencia</button>
+            <button class="light" type="button" onclick="fillDemo()">Cargar ejemplo</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="section-title">
+          <h2>Incidencias</h2>
+          <div class="actions">
+            <button class="light" onclick="clearClosed()">Ocultar cerradas</button>
+            <button class="warn" onclick="clearAll()">Borrar todo</button>
+          </div>
+        </div>
+        <div class="filters">
+          <input id="q" placeholder="Buscar por ID, anticipo, cliente, producto, proveedor..." oninput="render()">
+          <select id="filterEstado" onchange="render()"><option value="">Todos los estados</option></select>
+          <select id="filterProveedor" onchange="render()"><option value="">Todos los proveedores</option></select>
+          <select id="filterVendedor" onchange="render()"><option value="">Todos los vendedores</option></select>
+          <select id="filterPrioridad" onchange="render()"><option value="">Todas las prioridades</option></select>
+        </div>
+        <div class="table-wrap" id="tableWrap"></div>
+      </section>
+    </div>
+  </main>
+
+  <dialog id="detailDialog">
+    <div class="modal-head">
+      <h3 id="detailTitle">Detalle incidencia</h3>
+      <button class="light" onclick="detailDialog.close()">Cerrar</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+  </dialog>
+
+  <script>
+    const proveedores = ["Euromolduras", "Oknafej", "La peñuela", "ProLine", "Sucroal", "Andreu", "Roper", "Uniarte", "Otro"];
+    const vendedores = ["Rober", "Brais", "Alberto", "David", "Iago", "Dani"];
+    const familias = ["Puerta", "Ventana", "Corredera", "Cristal", "Persiana", "Mosquitera", "Cerradura", "Transporte", "Instalación", "Otro"];
+    const estados = ["Nueva", "Revisando en tienda", "Pendiente cliente", "En proveedor", "Pendiente respuesta proveedor", "Solución aceptada", "Reposición solicitada", "Abono solicitado", "Transporte pendiente", "Cerrada favorable", "Cerrada no favorable", "Cancelada"];
+    const prioridades = ["Baja", "Media", "Alta", "Crítica"];
+    const tipos = ["Golpe / daño estético", "Lacado defectuoso", "Vidriera defectuosa", "Marco dañado", "Medida incorrecta", "Falta material", "Herraje defectuoso", "Cerradura defectuosa", "Error de modelo", "Diferencia de color", "Problema de instalación", "Retraso de entrega", "Cristal roto", "Cristal incorrecto", "Cámara defectuosa", "Bajo emisivo / anti espía incorrecto", "Perfil dañado", "Persiana defectuosa", "Mosquitera defectuosa", "Hoja descuadrada", "Cierre defectuoso", "Falta accesorio"];
+    const soluciones = ["Pendiente valorar", "Reposición", "Abono", "Descuento/compensación", "Reparación", "Pieza/repuesto", "Recogida en tienda", "Transporte", "Sin solución favorable"];
+    const storeKey = "control-postventa-bd-v1";
+    let incidents = JSON.parse(localStorage.getItem(storeKey) || "[]");
+    let hideClosed = false;
+
+    function today(){ return new Date().toISOString().slice(0,10); }
+    function parseDate(v){ return v ? new Date(v + "T00:00:00") : null; }
+    function daysOpen(item){
+      const start = parseDate(item.fecha); if(!start) return "";
+      const closed = isClosed(item.estado) && item.fechaCierre ? parseDate(item.fechaCierre) : new Date();
+      return Math.max(0, Math.round((closed - start)/(1000*60*60*24)));
+    }
+    function isClosed(estado){ return ["Cerrada favorable","Cerrada no favorable","Cancelada"].includes(estado); }
+    function semaforo(item){
+      if(!item.fecha) return "";
+      if(item.prioridad === "Crítica" || item.reclamando === "Sí") return "Crítico";
+      const d = daysOpen(item);
+      if(d > 14) return "Rojo";
+      if(d > 7) return "Amarillo";
+      return "Verde";
+    }
+    function nextId(){
+      const nums = incidents.map(x => Number(String(x.id||"").replace("INC-", ""))).filter(Boolean);
+      const n = nums.length ? Math.max(...nums)+1 : 1;
+      return "INC-" + String(n).padStart(4,"0");
+    }
+    function save(){ localStorage.setItem(storeKey, JSON.stringify(incidents)); }
+    function fillSelect(id, arr, first=""){
+      const el = document.getElementById(id);
+      el.innerHTML = first ? `<option value="">${first}</option>` : "";
+      arr.forEach(v => el.insertAdjacentHTML("beforeend", `<option>${v}</option>`));
+    }
+    function init(){
+      ["vendedor","responsable"].forEach(id => fillSelect(id, vendedores));
+      fillSelect("familia", familias);
+      fillSelect("proveedor", proveedores);
+      fillSelect("tipo", tipos);
+      fillSelect("estado", estados);
+      fillSelect("prioridad", prioridades);
+      fillSelect("solucion", soluciones);
+      fillSelect("filterEstado", estados, "Todos los estados");
+      fillSelect("filterProveedor", proveedores, "Todos los proveedores");
+      fillSelect("filterVendedor", vendedores, "Todos los vendedores");
+      fillSelect("filterPrioridad", prioridades, "Todas las prioridades");
+      document.getElementById("fecha").value = today();
+      document.getElementById("estado").value = "Nueva";
+      document.getElementById("prioridad").value = "Media";
+      document.getElementById("solucion").value = "Pendiente valorar";
+      render();
+    }
+    function getForm(){
+      return {
+        id: document.getElementById("editId").value || nextId(),
+        fecha: fecha.value, anticipo: anticipo.value.trim(), cliente: cliente.value.trim(), telefono: telefono.value.trim(),
+        vendedor: vendedor.value, responsable: responsable.value, familia: familia.value, proveedor: proveedor.value,
+        producto: producto.value.trim(), referencia: referencia.value.trim(), importe: Number(importe.value||0), tipo: tipo.value,
+        estado: estado.value, prioridad: prioridad.value, ultimo: ultimo.value, limite: limite.value, reclamando: reclamando.value,
+        solucion: solucion.value, descripcion: descripcion.value.trim(), proxima: proxima.value.trim(), observaciones: observaciones.value.trim(), enlace: enlace.value.trim(),
+        fechaCierre: isClosed(estado.value) ? today() : "",
+        updatedAt: new Date().toISOString()
+      };
+    }
+    function saveIncident(e){
+      e.preventDefault();
+      const item = getForm();
+      const idx = incidents.findIndex(x => x.id === item.id);
+      if(idx >= 0){ incidents[idx] = {...incidents[idx], ...item}; }
+      else { incidents.push({...item, history:[{date:today(), action:"Creación incidencia", detail:item.descripcion || "Incidencia creada"}]}); }
+      save(); resetForm(); render();
+    }
+    function resetForm(){
+      incidentForm.reset(); editId.value = ""; formTitle.textContent = "Nueva incidencia";
+      fecha.value = today(); estado.value = "Nueva"; prioridad.value = "Media"; solucion.value = "Pendiente valorar"; reclamando.value = "No";
+    }
+    function editIncident(id){
+      const item = incidents.find(x => x.id === id); if(!item) return;
+      formTitle.textContent = "Editar " + id;
+      editId.value = item.id;
+      ["fecha","anticipo","cliente","telefono","vendedor","responsable","familia","proveedor","producto","referencia","importe","tipo","estado","prioridad","ultimo","limite","reclamando","solucion","descripcion","proxima","observaciones","enlace"].forEach(k => { document.getElementById(k).value = item[k] ?? ""; });
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+    function deleteIncident(id){
+      if(!confirm("¿Borrar la incidencia " + id + "?")) return;
+      incidents = incidents.filter(x => x.id !== id); save(); render();
+    }
+    function closeIncident(id){
+      const item = incidents.find(x => x.id === id); if(!item) return;
+      item.estado = "Cerrada favorable"; item.fechaCierre = today();
+      item.history = item.history || []; item.history.push({date:today(), action:"Cierre incidencia", detail:"Cerrada favorablemente"});
+      save(); render();
+    }
+    function addHistory(id){
+      const item = incidents.find(x => x.id === id); if(!item) return;
+      const action = prompt("Acción realizada", "Email proveedor"); if(!action) return;
+      const detail = prompt("Detalle / comentario", "");
+      item.history = item.history || [];
+      item.history.push({date:today(), action, detail:detail || ""});
+      item.ultimo = today();
+      save(); render(); showDetail(id);
+    }
+    function showDetail(id){
+      const item = incidents.find(x => x.id === id); if(!item) return;
+      detailTitle.textContent = `${item.id} · ${item.cliente || "Sin cliente"}`;
+      const hist = (item.history || []).map(h => `<div class="history-item"><b>${h.date}</b> · ${escapeHtml(h.action)}<br><span class="muted">${escapeHtml(h.detail||"")}</span></div>`).join("") || `<p class="muted">Sin seguimiento todavía.</p>`;
+      detailBody.innerHTML = `
+        <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px">
+          <div><b>Proveedor</b><br>${escapeHtml(item.proveedor||"")}</div>
+          <div><b>Estado</b><br>${pillState(item.estado)}</div>
+          <div><b>Semáforo</b><br>${pillRisk(semaforo(item))}</div>
+          <div><b>Anticipo</b><br>${escapeHtml(item.anticipo||"")}</div>
+          <div><b>Producto</b><br>${escapeHtml(item.producto||"")}</div>
+          <div><b>Días abierta</b><br>${daysOpen(item)}</div>
+        </div>
+        <p><b>Descripción:</b><br>${escapeHtml(item.descripcion||"")}</p>
+        <p><b>Próxima acción:</b><br>${escapeHtml(item.proxima||"")}</p>
+        ${item.enlace ? `<p><b>Fotos/documentos:</b> <a href="${escapeAttr(item.enlace)}" target="_blank">Abrir enlace</a></p>` : ""}
+        <div class="actions" style="margin-bottom:12px"><button class="primary" onclick="addHistory('${item.id}')">Añadir seguimiento</button><button class="light" onclick="copySupplierEmail('${item.id}')">Copiar email proveedor</button></div>
+        <h3>Historial</h3>${hist}
+      `;
+      detailDialog.showModal();
+    }
+    function pillRisk(v){
+      const cls = v === "Crítico" ? "critico" : (v || "").toLowerCase();
+      return `<span class="pill ${cls}">${v || "-"}</span>`;
+    }
+    function pillState(v){
+      const cls = isClosed(v) ? "closed" : "state";
+      return `<span class="pill ${cls}">${escapeHtml(v || "-")}</span>`;
+    }
+    function renderKpis(list){
+      const open = incidents.filter(x => !isClosed(x.estado));
+      const urgent = open.filter(x => ["Rojo","Crítico"].includes(semaforo(x))).length;
+      const prov = open.filter(x => ["En proveedor","Pendiente respuesta proveedor"].includes(x.estado)).length;
+      const cli = open.filter(x => x.estado === "Pendiente cliente").length;
+      const amount = open.reduce((s,x)=>s+(Number(x.importe)||0),0);
+      const month = new Date().toISOString().slice(0,7);
+      const closedMonth = incidents.filter(x => isClosed(x.estado) && String(x.fechaCierre||"").startsWith(month)).length;
+      const kpis = [
+        ["Abiertas", open.length], ["Urgentes", urgent], ["Pend. proveedor", prov], ["Pend. cliente", cli], ["Cerradas mes", closedMonth], ["Importe abierto", amount.toLocaleString("es-ES",{style:"currency",currency:"EUR"})]
+      ];
+      document.getElementById("kpis").innerHTML = kpis.map(k => `<div class="card kpi"><div class="label">${k[0]}</div><div class="value">${k[1]}</div></div>`).join("");
+    }
+    function filtered(){
+      const text = q.value.toLowerCase().trim();
+      return incidents.filter(x => {
+        if(hideClosed && isClosed(x.estado)) return false;
+        if(filterEstado.value && x.estado !== filterEstado.value) return false;
+        if(filterProveedor.value && x.proveedor !== filterProveedor.value) return false;
+        if(filterVendedor.value && x.vendedor !== filterVendedor.value) return false;
+        if(filterPrioridad.value && x.prioridad !== filterPrioridad.value) return false;
+        if(!text) return true;
+        return [x.id,x.anticipo,x.cliente,x.telefono,x.producto,x.referencia,x.proveedor,x.descripcion,x.tipo].join(" ").toLowerCase().includes(text);
+      }).sort((a,b)=> new Date(b.fecha || 0) - new Date(a.fecha || 0));
+    }
+    function render(){
+      renderKpis();
+      const list = filtered();
+      if(!list.length){ tableWrap.innerHTML = `<div class="empty">No hay incidencias con esos filtros.</div>`; return; }
+      tableWrap.innerHTML = `<table><thead><tr><th>ID</th><th>Fecha</th><th>Cliente / anticipo</th><th>Producto</th><th>Proveedor</th><th>Estado</th><th>Prioridad</th><th>Días</th><th>Riesgo</th><th>Acciones</th></tr></thead><tbody>${list.map(rowHtml).join("")}</tbody></table>`;
+    }
+    function rowHtml(x){
+      return `<tr>
+        <td><b>${x.id}</b><br><span class="small muted">${escapeHtml(x.vendedor||"")}</span></td>
+        <td>${x.fecha || ""}</td>
+        <td><b>${escapeHtml(x.cliente||"")}</b><br><span class="small muted">${escapeHtml(x.anticipo||"")} · ${escapeHtml(x.telefono||"")}</span></td>
+        <td>${escapeHtml(x.producto||"")}<br><span class="small muted">${escapeHtml(x.tipo||"")}</span></td>
+        <td>${escapeHtml(x.proveedor||"")}</td>
+        <td>${pillState(x.estado)}</td>
+        <td>${escapeHtml(x.prioridad||"")}</td>
+        <td>${daysOpen(x)}</td>
+        <td>${pillRisk(semaforo(x))}</td>
+        <td><div class="row-actions"><button class="light" onclick="showDetail('${x.id}')">Ver</button><button onclick="editIncident('${x.id}')">Editar</button><button class="primary" onclick="addHistory('${x.id}')">Seguimiento</button><button class="light" onclick="closeIncident('${x.id}')">Cerrar</button><button class="warn" onclick="deleteIncident('${x.id}')">Borrar</button></div></td>
+      </tr>`;
+    }
+    function clearClosed(){ hideClosed = !hideClosed; render(); }
+    function clearAll(){ if(confirm("Esto borrará todas las incidencias guardadas en este navegador. ¿Seguro?")){ incidents=[]; save(); render(); } }
+    function fillDemo(){
+      fecha.value = today(); anticipo.value = "123456"; cliente.value = "Cliente ejemplo"; telefono.value = "600000000"; vendedor.value = "Rober"; responsable.value = "Rober";
+      familia.value = "Ventana"; proveedor.value = "Oknafej"; producto.value = "Ventana PVC 137x100"; referencia.value = "REF-000"; importe.value = "349.90";
+      tipo.value = "Cierre defectuoso"; estado.value = "En proveedor"; prioridad.value = "Alta"; ultimo.value = today(); limite.value = today(); reclamando.value = "No";
+      solucion.value = "Pendiente valorar"; descripcion.value = "Ejemplo: la hoja no cierra correctamente y el cliente envía fotos."; proxima.value = "Enviar correo al proveedor con fotos";
+    }
+    function exportCSV(){
+      const headers = ["ID","Fecha apertura","Anticipo","Cliente","Teléfono","Vendedor","Responsable","Familia","Proveedor","Producto","Referencia","Importe","Tipo","Estado","Prioridad","Días abierta","Semáforo","Último contacto","Fecha límite","Cliente reclamando","Solución","Descripción","Próxima acción","Observaciones","Enlace"];
+      const rows = incidents.map(x => [x.id,x.fecha,x.anticipo,x.cliente,x.telefono,x.vendedor,x.responsable,x.familia,x.proveedor,x.producto,x.referencia,x.importe,x.tipo,x.estado,x.prioridad,daysOpen(x),semaforo(x),x.ultimo,x.limite,x.reclamando,x.solucion,x.descripcion,x.proxima,x.observaciones,x.enlace]);
+      download("control_postventa_incidencias.csv", toCSV([headers,...rows]), "text/csv;charset=utf-8");
+    }
+    function toCSV(rows){ return rows.map(r => r.map(v => '"' + String(v ?? "").replaceAll('"','""') + '"').join(";")).join("\n"); }
+    function exportJSON(){ download("control_postventa_backup.json", JSON.stringify(incidents,null,2), "application/json"); }
+    function importJSON(ev){
+      const file = ev.target.files[0]; if(!file) return;
+      const reader = new FileReader();
+      reader.onload = () => { try{ incidents = JSON.parse(reader.result); save(); render(); alert("Datos importados correctamente"); } catch(e){ alert("El archivo no parece un JSON válido"); } };
+      reader.readAsText(file);
+    }
+    function download(name, content, type){
+      const blob = new Blob([content], {type}); const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = name; a.click(); URL.revokeObjectURL(a.href);
+    }
+    function copySupplierEmail(id){
+      const x = incidents.find(i=>i.id===id); if(!x) return;
+      const text = `Buenos días,\n\nAbrimos incidencia sobre el pedido/anticipo ${x.anticipo || "[Nº ANTICIPO]"}, correspondiente al cliente ${x.cliente || "[CLIENTE]"}.\n\nProducto: ${x.producto || "[PRODUCTO]"}\nReferencia/EAN: ${x.referencia || "[REFERENCIA]"}\nProblema detectado: ${x.descripcion || "[DESCRIPCIÓN]"}\nSolución solicitada: ${x.solucion || "[SOLUCIÓN]"}\n\nAdjuntamos imágenes/vídeos para valoración y quedamos pendientes de confirmación.\n\nUn saludo.`;
+      navigator.clipboard.writeText(text).then(()=>alert("Email copiado al portapapeles"));
+    }
+    function escapeHtml(s){ return String(s ?? "").replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+    function escapeAttr(s){ return escapeHtml(s).replace(/`/g,"&#96;"); }
+    init();
+  </script>
+</body>
+</html>
